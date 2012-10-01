@@ -1,0 +1,165 @@
+<!DOCTYPE html >
+<html >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>{% if page_title %} {{ page_title }} | {% endif %} Country Sports Bet</title>
+    <script type="text/javascript" src="{{ STATIC_URL }}jquery.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}jquery.form.js"></script>
+    <style type="text/css">
+        *{
+            margin:0;
+            padding:0;
+            margin-bottom:5px;
+        }
+        #body{
+            height:auto;
+            width:100%;
+        }
+        #header1{
+            height:45px;
+            width:90%;
+            background:#005E00;
+            position:relative;
+            margin-left:5%;
+        }
+
+        #content{
+            float:left;
+            height:auto;
+            width:90%;
+            margin-left:5%;
+            margin-top:30px;
+            background:#FFF;
+            -moz-border-radius-topright: 25px;
+            -moz-border-radius-bottomleft: 25px;
+        }
+        #contenteft{
+            float:left;
+            height:auto;
+            width:25%;
+            background:#999;
+        }
+        #contentright{
+            float:right;
+            height:auto;
+            width:75%;
+            background:#FFF;
+        }
+
+        #footer{
+
+            float:left;
+            height:30px;
+            width:90%;
+            background:#005E00;
+            margin-left:5%;
+            margin-top:2%;
+            margin-bottom:5px;
+
+        }
+        #login{
+            float:right;
+            margin-top:6px;
+            height:30px;
+            width:auto;
+            margin-right:12px;
+            background:#005E00;
+        }
+        #companyname{
+            color:#FFF;
+            font-weight:bold;
+            text-align:center;
+            font-size:36px;
+        }
+
+        a:link {
+            color: #FFF;
+            text-decoration: none;
+        }
+        a {
+            font-weight: bold;
+        }
+        a:visited {
+            text-decoration: none;
+            color: #FFF;
+        }
+        a:hover {
+            text-decoration: none;
+        }
+        a:active {
+            text-decoration: none;
+        }
+        #slideshow{
+            float:left;
+            height:auto;
+            width:90%;
+            margin-left:5%;
+            margin-top:30px;
+            background:#00C;
+            -moz-border-radius-topright: 25px;
+            -moz-border-radius-bottomleft: 25px;
+        }
+    </style>
+    <script type="text/javascript">
+        $(document).ready(function(){
+
+            var options = {
+//            target: '.errorBox',
+                url: '{% url errorCheck %}',
+                success: showResponse,
+                error: function(){
+                    alert('Error At Backend, Please call engineer');
+                }
+            };
+            $("#amount").keydown(function(event) {
+                if ( event.keyCode == 46 || event.keyCode == 8 || event.keyCode == 9 || event.keyCode == 27 || event.keyCode == 13 ||
+
+                        (event.keyCode == 65 && event.ctrlKey === true) ||
+
+                        (event.keyCode >= 35 && event.keyCode <= 39)) {
+
+                    return;
+                }
+                else {
+
+                    if (event.shiftKey || (event.keyCode < 48 || event.keyCode > 57) && (event.keyCode < 96 || event.keyCode > 105 )) {
+                        event.preventDefault();
+                    }
+                }
+                if ($(this).val() != "" && $('#jobject').val() != ""){
+                    $('#stake').removeAttr('disabled');
+                }
+            });
+            $('#better').ajaxForm(options);
+            $('#stake').click(addStake);
+        });
+
+        function showResponse(responseText,statusText,xhr,$form){
+
+            if (responseText == "no match"){
+                $('#id_odd').val(responseText);
+                $('#addmatch').attr('disabled','disabled');
+            }else{
+                $('#id_odd').removeAttr('readonly');
+                $('#id_odd').val(responseText);
+                $('#id_odd').attr('readonly','readonly');
+                $('#addmatch').removeAttr('disabled');
+            }
+
+        }
+        function addStake(){
+            var jobject = $('#jobject').val();
+            var amount = $('#amount').val();
+            $.post("{% url bet %}",{ticket:jobject,amount:amount},function(){
+                alert('Ticket Posted check the printer');
+            });
+        }
+
+    </script>
+</head>
+
+<body>
+{% block content %}
+{% endblock %}
+</body>
+</html>

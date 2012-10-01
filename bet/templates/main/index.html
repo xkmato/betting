@@ -1,0 +1,40 @@
+
+{% extends 'base.html' %}
+{% block content %}
+<div id="header1"><b id="companyname">COUNTRY SPORTS BET</b>
+<div id="login">
+  <form id="form1" name="form1" method="post" action="">{% csrf_token %}
+    <table width="650" border="0">
+      <tr>
+        <td width="220" height="23" style=" color:#CCC;"><label for="textfield"></label>
+          <b>Username </b>{{ form.username }}</td>
+        <td width="210" style=" color:#CCC;"><b>Password </b>{{ form.password }}</td>
+        <td width="47"><input type="submit"  id="button" value="Login" /></td>
+        <td width="174">&nbsp;</td>
+      </tr>
+    </table>
+  </form>
+</div>
+</div>
+<div id="slideshow">
+  <p style="color:#CCC">Put here slide show</p>
+  <p>&nbsp;</p>
+  <p>&nbsp;</p>
+  <p>&nbsp;</p>
+  <p>&nbsp;</p>
+  <p>&nbsp;</p>
+  <p>&nbsp;</p>
+  <p>&nbsp;</p>
+  <p>&nbsp;</p>
+  <p>&nbsp;</p>
+  <p>&nbsp;</p>
+  <p>&nbsp;</p>
+  <p>&nbsp;</p>
+  <p>&nbsp;</p>
+  <p>&nbsp;</p>
+</div>
+
+<div id="footer">
+ <p style="color:#FFF;">&nbsp;&nbsp;&copy; Copyrights 2012 Country Sports Bet &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AwesomeNUX &nbsp;Inc.</p>
+</div>
+{% endblock %}
