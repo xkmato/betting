@@ -10,7 +10,7 @@ from models import OddCategory, Match, Ticket, Odd, Result, User
 __author__ = 'kenneth'
 
 class Synchronize(object):
-    URL = 'localhost:8000'
+    URL = 'kirooto.alwaysdata.net'
     connection = HTTPConnection(URL)
 
     def __init__(self):
