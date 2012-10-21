@@ -5,7 +5,6 @@ import peewee
 from api import authenticate, create_bet,  BetError, printTicket
 from models import Ticket, Match, OddCategory, Odd
 from sync import Synchronize
-import multitask
 
 __authors__ = 'kenneth and emma'
 
@@ -363,15 +362,8 @@ class BettingApp(object):
         self.matchCode.set_text("")
         self.odd.set_text("")
 
-
-def runApp():
+if __name__ == "__main__":
+    Synchronize().run()
     app = BettingApp()
     app.window.show()
-    multitask.add(Synchronize().run())
-    yield gtk.main()
-
-if __name__ == "__main__":
-    multitask.add(runApp())
-    multitask.run()
-
-
+    gtk.main()

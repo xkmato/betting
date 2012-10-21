@@ -2,7 +2,6 @@ from httplib import HTTPConnection
 import httplib
 import json
 import socket
-from multitask import sleep
 from urllib2 import Request, URLError, HTTPError, urlopen
 import peewee
 from models import OddCategory, Match, Ticket, Odd, Result, User
