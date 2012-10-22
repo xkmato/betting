@@ -5,7 +5,7 @@ distutils.core.setup(
     name='bettin',
     version='1',
     packages=[''],
-    url='countrysportsbet.appspot.com',
+    url='www.countrysportsbet.com',
     license='',
     author='kenneth',
     author_email='kbonky@gmail.com',
