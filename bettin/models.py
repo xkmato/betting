@@ -40,6 +40,7 @@ class Ticket(ModelStuff):
     betOn = peewee.DateTimeField()
     paid = peewee.BooleanField(default=False)
     paidDate = peewee.DateTimeField(null=True)
+    synced = peewee.BooleanField(default=False)
 
     def __unicode__(self):
         return str(self.id)
@@ -94,6 +95,7 @@ class Odd(ModelStuff):
 class Bet(ModelStuff):
     ticket = peewee.ForeignKeyField(Ticket)
     odd = peewee.ForeignKeyField(Odd)
+    synced = peewee.BooleanField(default=False)
 
     def is_winner(self):
         return self.odd in [result.odd for result in Result.select()]

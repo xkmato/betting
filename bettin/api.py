@@ -1,7 +1,7 @@
 
 import peewee
 from models import User, Match, Bet, Ticket, Odd, OddCategory
-#import win32print
+import win32print
 
 #classes
 class BetError(RuntimeError):
@@ -47,8 +47,9 @@ def cancel_receipt():
     pass
 
 
-def printTicket(ticket,user):
-    tic =  "Country Sports Bet\n%s\nAgent: %s\n-----------------------------\n"%(str(ticket.betOn),user.username)
+def printTicket(app):
+    ticket = app.fullTicket
+    tic =  "Country Sports Bet\n%s\nAgent: %s\n-----------------------------\n"%(str(ticket.betOn),app.user.username)
     for bet in ticket.bet_set:
         tic += 'match code: %s\ncategory: %s\n%s vs %s \nbet on:%s \nOdd: %s \nstartsOn: %s\n\n'%(bet.odd.match.iid,bet.odd.category.name,bet.odd.match.homeTeam,
                                                                                          bet.odd.match.awayTeam,bet.odd.oddCode,
@@ -60,19 +61,17 @@ def printTicket(ticket,user):
     tic += "\n\n\n\n"
 
     try:
-        hPrinter = win32print.OpenPrinter ("EPSON TM-U220D Receipt(1)")
-    except Exception:
-        try:
-            hPrinter = win32print.OpenPrinter("EPSON TM-U220D Receipt")
-        except Exception:
-            ti = open('tictet %d'%ticket.id, 'w')
-            ti.write(tic)
-            ti.close()
-            return "No Printer Detected"
-#    job = win32print.StartDocPrinter (hPrinter, 1, ("Recipt %d\n"%ticket.id, None, "RAW"))
-#    win32print.WritePrinter(hPrinter, tic)
-#    win32print.EndDocPrinter (hPrinter)
-#    return None
+        hPrinter = win32print.OpenPrinter (app.printer_box.get_active_text())
+    except Exception,e:
+        print(e)
+        ti = open('tictet %d'%ticket.id, 'w')
+        ti.write(tic)
+        ti.close()
+        return "No Printer Detected"
+    job = win32print.StartDocPrinter (hPrinter, 1, ("Recipt %d\n"%ticket.id, None, "RAW"))
+    win32print.WritePrinter(hPrinter, tic)
+    win32print.EndDocPrinter (hPrinter)
+    return None
 
 def confirm_button():
     pass

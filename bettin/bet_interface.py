@@ -4,6 +4,7 @@ import gtk
 import peewee
 from api import authenticate, create_bet,  BetError, printTicket
 from models import Ticket, Match, OddCategory, Odd
+import printer
 from sync import Synchronize
 
 __authors__ = 'kenneth and emma'
@@ -92,7 +93,7 @@ class BettingApp(object):
             self.anothermatch_label.hide()
 
     def on_confirmButton_clicked(self,widget,data=None):
-        pt = printTicket(self.fullTicket,self.user)
+        pt = printTicket(self)
         if pt:
             self.noPrinter.set_text(pt)
         else:
@@ -132,7 +133,7 @@ class BettingApp(object):
         self.amountstaked.set_text("")
 
     def on_update_clicked(self,widget,data=None):
-        pass
+        Synchronize().run(self)
 
     def on_addMatchButton_clicked(self,widget,data=None):
         matchId = self.matchCode.get_text()
@@ -291,6 +292,7 @@ class BettingApp(object):
         self.noPrinter = builder.get_object("no_printer")
         self.update = builder.get_object("update")
         self.connect_printer = builder.get_object("printer_connection")
+        self.printer_box = builder.get_object("printer_box")
 
         self.store = gtk.ListStore(gobject.TYPE_STRING)
 
@@ -308,6 +310,16 @@ class BettingApp(object):
         self.category.pack_start(cell,True)
         self.category.add_attribute(cell,'text',0)
         self.category.set_active(0)
+
+        self.printer_store = gtk.ListStore(gobject.TYPE_STRING)
+        printers = [[print_guy['Name']] for print_guy in printer.PrinterList()]
+        for p__ in printers:
+            self.printer_store.append(p__)
+        self.printer_box.set_model(model=self.printer_store)
+        self.printer_box.pack_start(cell,True)
+        self.printer_box.add_attribute(cell,'text',0)
+        self.printer_box.set_active(0)
+
 
         if self.amountstaked.get_text()=="":
             self.stakebutton.set_sensitive(False)
@@ -362,8 +374,11 @@ class BettingApp(object):
         self.matchCode.set_text("")
         self.odd.set_text("")
 
+    def on_printer_changed(self,widget,data=None):
+        pass
+
 if __name__ == "__main__":
-    Synchronize().run()
     app = BettingApp()
+    Synchronize().run(app)
     app.window.show()
     gtk.main()

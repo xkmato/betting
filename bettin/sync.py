@@ -4,7 +4,7 @@ import json
 import socket
 from urllib2 import Request, URLError, HTTPError, urlopen
 import peewee
-from models import OddCategory, Match, Ticket, Odd, Result, User
+from models import OddCategory, Match, Ticket, Odd, Result, User, Bet
 
 __author__ = 'kenneth'
 
@@ -80,18 +80,36 @@ class Synchronize(object):
     def syncTicketTable(self):
         data = {}
         objects = []
-        if not data.has_key('up-to-date'):
-            for ticket in Ticket.select():
-                obj = {'ticket_id':ticket.id,'branch':1,'amount':str(ticket.amount),'betOn':str(ticket.betOn),'paid':ticket.paid,'paidDate':str(ticket.paidDate)}
-                objects.append(obj)
-            data['name'] = objects
-            request = Request(url='http://'+self.URL+'/sync/ticket',data=json.dumps(data))
-            try:
-                urlopen(request).read()
-            except HTTPError, err:
-                pass
-            except  URLError,err:
-                pass
+        for ticket in Ticket.filter(synced = False):
+            obj = {'ticket':ticket.id,'branch':1,'amount':str(ticket.amount),'betOn':str(ticket.betOn)}
+            ticket.synced = True
+            ticket.save()
+            objects.append(obj)
+        data['name'] = objects
+        request = Request(url='http://'+self.URL+'/sync/ticket',data=json.dumps(data))
+        try:
+            urlopen(request).read()
+        except HTTPError, err:
+            pass
+        except  URLError,err:
+            pass
+
+    def syncBetTable(self):
+        data = {}
+        objects = []
+        for bet in Bet.filter(synced = False):
+            obj = {'ticket':bet.ticket.id,'odd':str(bet.odd.iid)}
+            bet.synced = True
+            bet.save()
+            objects.append(obj)
+        data['name'] = objects
+        request = Request(url='http://'+self.URL+'/sync/bet',data=json.dumps(data))
+        try:
+            urlopen(request).read()
+        except HTTPError, err:
+            pass
+        except  URLError,err:
+            pass
 
     def syncOddTable(self):
         self.connection.request("GET", "/sync/odd")
@@ -129,77 +147,75 @@ class Synchronize(object):
 
 
 
-    def run(self):
-        while True:
-            try:
-                self.syncUser()
-            except httplib.HTTPException:
-    #            app.connection.set_text("Connection Error")
-                pass
-            except socket.gaierror:
-    #            app.connection.set_text("OffLine")
-                pass
-            except peewee.DoesNotExist:
-    #            app.connection.set_text("Updated...")
-                pass
-            except Exception,e:
-    #            app.connection.set_text("Ignore - User Error")
-                print e
-            try:
-                self.syncMatchTable()
-            except httplib.HTTPException:
-    #            app.connection.set_text("Connection Error")
-                pass
-            except socket.gaierror:
-    #            app.connection.set_text("OffLine")
-                pass
-            except peewee.DoesNotExist:
-    #            app.connection.set_text("Updated...")
-                pass
-            except Exception,e:
-    #            app.connection.set_text("Ignore - Match Error")
-                print e
-            try:
-                self.syncOddCatTable()
-            except httplib.HTTPException:
-    #            app.connection.set_text("Connection Error")
-                pass
-            except socket.gaierror:
-    #            app.connection.set_text("OffLine")
-                pass
-            except peewee.DoesNotExist:
-    #            app.connection.set_text("Updated...")
-                pass
-            except Exception,e:
-    #            app.connection.set_text("Ignore - Category Error")
-                print e
-            try:
-                self.syncResult()
-            except httplib.HTTPException:
-    #            app.connection.set_text("Connection Error")
-                pass
-            except socket.gaierror:
-    #            app.connection.set_text("OffLine")
-                pass
-            except peewee.DoesNotExist:
-    #            app.connection.set_text("Updated...")
-                pass
-            except Exception,e:
-    #            app.connection.set_text("Ignore - Result Error")
-                print e
-            try:
-                self.syncOddTable()
-            except httplib.HTTPException:
-    #            app.connection.set_text("Connection Error")
-                pass
-            except socket.gaierror:
-    #            app.connection.set_text("OffLine")
-                pass
-            except peewee.DoesNotExist:
-    #            app.connection.set_text("Updated...")
-                pass
-            except Exception,e:
-    #            app.connection.set_text("Ignore - Odd Error")
-                print e
-    #        self.syncTicketTable()
-            yield sleep(20)
+    def run(self,app):
+        try:
+            self.syncUser()
+        except httplib.HTTPException:
+            app.connection.set_text("Connection Error")
+            pass
+        except socket.gaierror:
+            app.connection.set_text("OffLine")
+            pass
+        except peewee.DoesNotExist:
+            app.connection.set_text("Updated...")
+            pass
+        except Exception,e:
+            app.connection.set_text("Ignore - User Error")
+            print e
+        try:
+            self.syncMatchTable()
+        except httplib.HTTPException:
+            app.connection.set_text("Connection Error")
+            pass
+        except socket.gaierror:
+            app.connection.set_text("OffLine")
+            pass
+        except peewee.DoesNotExist:
+            app.connection.set_text("Updated...")
+            pass
+        except Exception,e:
+            app.connection.set_text("Ignore - Match Error")
+            print e
+        try:
+            self.syncOddCatTable()
+        except httplib.HTTPException:
+            app.connection.set_text("Connection Error")
+            pass
+        except socket.gaierror:
+            app.connection.set_text("OffLine")
+            pass
+        except peewee.DoesNotExist:
+            app.connection.set_text("Updated...")
+            pass
+        except Exception,e:
+            app.connection.set_text("Ignore - Category Error")
+            print e
+        try:
+            self.syncResult()
+        except httplib.HTTPException:
+            app.connection.set_text("Connection Error")
+            pass
+        except socket.gaierror:
+            app.connection.set_text("OffLine")
+            pass
+        except peewee.DoesNotExist:
+            app.connection.set_text("Updated...")
+            pass
+        except Exception,e:
+            app.connection.set_text("Ignore - Result Error")
+            print e
+        try:
+            self.syncOddTable()
+        except httplib.HTTPException:
+            app.connection.set_text("Connection Error")
+            pass
+        except socket.gaierror:
+            app.connection.set_text("OffLine")
+            pass
+        except peewee.DoesNotExist:
+            app.connection.set_text("Updated...")
+            pass
+        except Exception,e:
+            app.connection.set_text("Ignore - Odd Error")
+            print e
+        self.syncTicketTable()
