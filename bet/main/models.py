@@ -11,8 +11,8 @@ class Result(models.Model):
 
 
 class Bet(models.Model):
-    ticket = models.ForeignKey('Ticket')
-    odd = models.ForeignKey('Odd')
+    ticket = models.IntegerField()
+    odd = models.ForeignKey(Odd)
     synced = models.BooleanField(default=False)
 
     def is_winner(self):
@@ -22,38 +22,28 @@ class Bet(models.Model):
         return '%s - %s - %s'%(self.odd.match_id,self.odd.oddCode,self.odd)
 
 class Ticket(models.Model):
-    amount = models.DecimalField(max_digits=9,decimal_places=2)
-    betOn = models.DateTimeField(auto_now_add=True)
-    synced = models.BooleanField(default=False)
+    iid = models.IntegerField()
+    amount = models.DecimalField(max_digits=11,decimal_places=2)
+    betOn = models.DateTimeField()
+    paid = models.BooleanField(default=False)
+    paidOn = models.DateTimeField()
 
     def __unicode__(self):
         return str(self.pk)
 
     @property
-    def bets(self):
-        return self.bet_set.all()
-
-    @property
     def totalOdds(self):
-        odd = 1
-        for bet in self.bet_set.all():
-            odd = odd * bet.odd.odd
-        return odd
+        return sum(Bet.objects.filter(ticket=self.iid).values_list('ticket',flat=True))
 
     @property
     def expectedAmount(self):
         return self.totalOdds * self.amount
 
     def is_winner(self):
-        for bet in self.bets:
+        for bet in Bet.objects.filter(ticket=self.iid):
             if not bet.is_winner():
                 return False
         return True
-
-    def delete(self, using=None):
-        for bet in self.bets():
-            bet.delete()
-        super(Ticket,self).delete()
 
 class Odd(models.Model):
     odd = models.DecimalField(max_digits=5,decimal_places=2)

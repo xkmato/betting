@@ -6,7 +6,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.core import urlresolvers
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
-from main.forms import LoginForm, BetForm
+from main.forms import LoginForm, BetForm, TicketForm
 from main.models import Agent, Bet
 from models import OddCategory, Match, Ticket, Odd, Result
 
@@ -79,15 +79,20 @@ def sync_table(request,table):
             data['up-to-date'] = 'true'
         response = simplejson.dumps(data)
     if table == 'ticket':
-        objects = []
-        for ticket in Ticket.objects.filter(synced=False):
-            obj = {'iid':ticket.id,'amount':ticket.amount,'betOn':ticket.betOn}
-            objects.append(obj)
-            ticket.synced = True
-        data['name'] = objects
-        if len(objects) < 1:
-            data['up-to-date'] = 'true'
-        response = simplejson.dumps(data)
+        forms = simplejson.loads(request.REQUEST)
+        for form in forms:
+            f = TicketForm(form)
+            if f.is_valid():
+                f.save()
+        return HttpResponse(status=200)
+
+    if table == 'bet':
+        forms = simplejson.loads(request.REQUEST)
+        for form in forms:
+            f = BetForm(form)
+            if f.is_valid():
+                f.save()
+        return HttpResponse(status=200)
     if table == 'odd':
         objects = []
         for odd in Odd.objects.filter(synced=False):

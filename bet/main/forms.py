@@ -29,3 +29,25 @@ class BetForm(forms.Form):
             ticket = Ticket().save()
         bet = Bet(odd=odd,ticket=ticket)
         return bet
+
+
+class TicketForm(forms.Form):
+    ticket = forms.IntegerField()
+    branch = forms.IntegerField()
+    amount = forms.CharField()
+    betOn = forms.DateTimeField()
+
+    def save(self):
+        cleaned_data = self.cleaned_data
+        ticket = Ticket.objects.create(iid=cleaned_data['ticket'],amount=cleaned_data['amount'],betOn=cleaned_data['betOn'])
+        return ticket
+
+
+class BetForm(forms.Form):
+    ticket = forms.IntegerField()
+    odd = forms.IntegerField()
+
+    def save(self):
+        cleaned_data = self.cleaned_data
+        bet = Bet.objects.create(ticket = cleaned_data['ticket'],odd = cleaned_data['odd'])
+        return bet
